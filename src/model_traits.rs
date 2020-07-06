@@ -24,15 +24,8 @@ pub struct SendableMessage {
     #[serde(skip_serializing_if = "Option::is_none")]
     embeds: Option<Vec<SendableEmbed>>,
 
-    tts: bool,
-
     avatar_url: Option<String>,
     username: Option<String>,
-
-    #[serde(skip)]
-    attachment: Option<Vec<u8>>,
-    #[serde(skip)]
-    attachment_name: Option<String>,
 }
 
 impl Default for SendableMessage {
@@ -43,11 +36,8 @@ impl Default for SendableMessage {
             content: String::new(),
             embed: None,
             embeds: None,
-            tts: false,
             avatar_url: None,
             username: Some(String::from("Reminder")),
-            attachment: None,
-            attachment_name: None,
         }
     }
 }
@@ -56,22 +46,10 @@ impl SendableMessage {
     fn construct_multipart(&self) -> Result<multipart::Form, Box<dyn std::error::Error>> {
         let json = serde_json::to_string(self)?;
 
-        if self.attachment.is_some() && self.attachment_name.is_some() {
-            let attachment = self.attachment.clone().unwrap();
-            let name = self.attachment_name.clone().unwrap();
+        let form = multipart::Form::new()
+            .text("payload_json", json);
 
-            let form = multipart::Form::new()
-                .text("payload_json", json)
-                .part("file", multipart::Part::bytes(attachment).file_name(name));
-
-            Ok(form)
-        }
-        else {
-            let form = multipart::Form::new()
-                .text("payload_json", json);
-
-            Ok(form)
-        }
+        Ok(form)
     }
 
     pub async fn send(&self, client: &Client) -> Result<reqwest::StatusCode, Box<dyn std::error::Error>> {
@@ -107,7 +85,6 @@ pub struct Footer {
 pub struct SendableEmbed {
     pub title: String,
     pub description: String,
-    pub footer: Footer,
 
     pub color: u32,
 }
@@ -117,10 +94,6 @@ impl SendableEmbed {
         return SendableEmbed {
             title: embed.title,
             description: embed.description,
-            footer: Footer {
-                text: embed.footer,
-                icon_url: embed.footer_icon,
-            },
             color: embed.color,
         }
     }
@@ -233,11 +206,8 @@ impl ReminderContent for ReminderDetails<'_> {
                 content: message.content,
                 embeds: embeds_vector,
                 embed: None,
-                tts: message.tts,
                 avatar_url: Some(self.reminder.avatar.clone()),
                 username: Some(self.reminder.username.clone()),
-                attachment: message.attachment,
-                attachment_name: message.attachment_name,
             }
         }
         else {
@@ -246,9 +216,6 @@ impl ReminderContent for ReminderDetails<'_> {
                 authorization: self.get_authorization(),
                 content: message.content,
                 embed: sendable_embed_handle,
-                tts: message.tts,
-                attachment: message.attachment,
-                attachment_name: message.attachment_name,
                 ..Default::default()
             }
         }

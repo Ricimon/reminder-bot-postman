@@ -3,18 +3,23 @@ table! {
         id -> Unsigned<Integer>,
         uid -> VarChar,
 
+        name -> Nullable<VarChar>,
+
         message_id -> Unsigned<Integer>,
 
         channel_id -> Unsigned<Integer>,
 
         time -> Unsigned<Integer>,
-        interval -> Nullable<Unsigned<Integer>>,
         enabled -> Bool,
 
         avatar -> VarChar,
         username -> VarChar,
 
+        interval -> Nullable<Unsigned<Integer>>,
+
         method -> Nullable<VarChar>,
+        set_by -> Unsigned<Integer>,
+        set_at -> Timestamp,
     }
 }
 
@@ -23,11 +28,8 @@ table! {
         id -> Unsigned<Integer>,
 
         content ->  VarChar,
-        tts -> Bool,
-        embed_id -> Nullable<Unsigned<Integer>>,
 
-        attachment -> Nullable<Binary>,
-        attachment_name -> Nullable<VarChar>,
+        embed_id -> Nullable<Unsigned<Integer>>,
     }
 }
 
@@ -37,9 +39,6 @@ table! {
 
         title -> VarChar,
         description -> VarChar,
-        footer -> VarChar,
-        footer_icon -> Nullable<VarChar>,
-
         color -> Unsigned<Integer>,
     }
 }
@@ -49,10 +48,10 @@ table! {
         id -> Unsigned<Integer>,
         channel -> Unsigned<BigInt>,
 
+        name -> Nullable<VarChar>,
+
         nudge -> SmallInt,
         blacklisted -> Bool,
-
-        name -> Nullable<VarChar>,
 
         webhook_id -> Nullable<Unsigned<BigInt>>,
         webhook_token -> Nullable<VarChar>,
